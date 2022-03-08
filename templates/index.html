@@ -5,7 +5,16 @@
 
 <p>This is my first webpage</p>
 
-<b>Hello {{ v_name }}</b>
+{% if v_name|length %}
+   <b>Hello {{ v_name }}</b>
+{% else %}
+    <b>Hello Anybody</b>
+{% endif %}
+<br/><br/>
+<b>Pizza</b><br/>
+{% for topping in pizza %}
+    {{ topping }} <br/>
+{% endfor %}
 
 {% endblock %}
 
