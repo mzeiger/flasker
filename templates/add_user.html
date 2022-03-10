@@ -12,30 +12,57 @@
 {% endfor %}
 
 {% if name %}
-    <h1>User Added!</h1>
     <br/><br/>
-    {% for user in our_users %}
-        {{ user.id }}.  {{ user.name }}  {{ user.email }} {{ user.date_added }} <br/>
-    {% endfor %}
+    <h2>User List:</h2>
+    <table class="table table-striped table-hover table-bordered">
+        <tr> <td>ID</td> <td>Name</td>  <td>Email</td>  <td>Create Time (UTC)</td> </tr>
+        <tbody>
+            {% for user in our_users %}
+                <tr> <td>{{ user.id }}</td> <td>{{ user.name }}</td> <td>{{ user.email }}</td>  <td>{{ user.date_added.strftime('%Y-%m-%d %H:%M:%S') }}</td> </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 {% else %}
-    <h1>User List:</h1>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        {{ form.name.label(class='form-label') }}
-        {{ form.name(class='form-control') }}
-        <br/>
-        {{ form.email.label(class='form-label') }}
-        {{ form.email(class='form-control') }}
+    <h2>User Entry</h2>
+    <form method="POST">    <!-- MUST use POST. GET will not work -->
+        {{ form.hidden_tag() }}        
+        <div class="row">
+            <div class="form-group col-md-3">
+                {{ form.name.label(class='form-label') }}
+                {{ form.name(class='form-control') }}
+             </div>
+             <div class="form-group col-md-3">                
+                {{ form.email.label(class='form-label') }}
+                {{ form.email(class='form-control', type='email', id='email_1') }}
+             </div>
+        </div>
         <br/>
         {{ form.submit(class='btn btn-secondary') }}
 
     </form>
 
     <br/><br/>
-    {% for user in our_users %}
-        {{ user.id }}.  {{ user.name }}  {{ user.email }}  {{ user.date_added }} <br/>
-    {% endfor %}
+    <h2>User List:</h2>
+    <table class="table table-striped table-hover table-bordered">
+        <tr> <td>ID</td> <td>Name</td>  <td>Email</td>  <td>Create Time (UTC)</td> </tr>
+        <tbody>
+            {% for user in our_users %}
+            <tr> <td>{{ user.id }}</td> <td>{{ user.name }}</td> <td>{{ user.email }}</td>  <td>{{ user.date_added.strftime('%Y-%m-%d %H:%M:%S') }}</td> </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endif %}
 
+<script>
+    var email_1 = document.querySelector('#email_1');
+    
+    //register invalid event that shows a custom message on invalidated of the field
+    email_1.addEventListener('invalid', function(ev){
+     ev.target.setCustomValidity('Invalid email address');
+    });
+</script>
+
 {% endblock %}
+
+

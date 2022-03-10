@@ -2,16 +2,29 @@ from gettext import install
 from flask import Flask, render_template, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Email, EqualTo, Optional
 # pip install flask-sqlalchemy  Note the - in pip and the _ in import
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_bootstrap import Bootstrap
+
 
 app = Flask(__name__)
 
-# Add database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db' # note three ///
+# Add sqlite database
+# commented out to implement mySQL database
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db' # note three ///
 
+# This is for mySQL. It's 
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://<user name><password>@<host>/<db_name'
+# need to install:
+#     pip install pymysql
+#     pip install cryptography
+# Then we can run using 'winpty python'
+#      from hello import db
+#      db.create_all()
+#      exit()
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://mzeiger:Tango_32@localhost/sql_users'
 
 # Secret key
 app.config['SECRET_KEY'] = "my secret key"
@@ -94,26 +107,32 @@ def name():
 # Cretae a form class for the db
 class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
-    email = StringField("Email", validators=[DataRequired()])
-    submit = SubmitField('Submit')
+    email = StringField("Email", validators=[DataRequired(), Email(message=True)])
+    submit = SubmitField('Add User')
 
 
 @app.route('/user/add', methods=['GET', 'POST'])
 def add_user():
     name = None
+    user_added = ''
     form=UserForm()
     if form.validate_on_submit():
         # Users is the class that defined the database
-        user = Users.query.filter_by(email=form.email.data).first()
+        user = Users.query.filter_by(email=form.email.data.lower()).first()
         if user == None:
-            user = Users(name=form.name.data, email=form.email.data)
+            user = Users(name=form.name.data, email=form.email.data.lower())
             db.session.add(user)
             db.session.commit()
+            user_added = True
+            flash('User added successfully')
+        else:
+            user_added = False
+            flash(f'User already in database. Name: {user.email}  Email: {user.name}')
         name = form.name.data
         form.name.data = ''
         form.email.data = ''
-        flash('User added successfully')
     our_users = Users.query.order_by(Users.date_added)
-    return render_template('add_user.html', form=form, name=name, our_users=our_users, the_title='Database Entry')
+    return render_template('add_user.html', form=form, name=name, 
+                            our_users=our_users, user_added=user_added, the_title='Database Entry')
 
 
