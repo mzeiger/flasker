@@ -1,8 +1,8 @@
 from gettext import install
-from flask import Flask, render_template, flash
+from flask import Flask, render_template, flash, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, Optional
+from wtforms.validators import DataRequired, Email, ValidationError
 # pip install flask-sqlalchemy  Note the - in pip and the _ in import
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -56,7 +56,7 @@ favorite_pizza = ['Pepperroni', 'Cheese', 'Mushroom', 4]
 
 @app.route('/')
 def index():
-    return render_template('index.html', pizza=favorite_pizza, the_title='Pizza')
+    return render_template('index.html', pizza=favorite_pizza, the_title='Codemy.com')
 
 # localhost:5000/user/john
 @app.route('/user/<name>')
@@ -107,7 +107,7 @@ def name():
 # Cretae a form class for the db
 class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
-    email = StringField("Email", validators=[DataRequired(), Email(message=True)])
+    email = StringField("Email", validators=[Email()])
     submit = SubmitField('Add User')
 
 
@@ -134,5 +134,27 @@ def add_user():
     our_users = Users.query.order_by(Users.date_added)
     return render_template('add_user.html', form=form, name=name, 
                             our_users=our_users, user_added=user_added, the_title='Database Entry')
+
+
+@app.route('/update/<int:id>', methods=['GET', 'POST'])
+def update(id):
+    form = UserForm()
+    name_to_update = Users.query.get_or_404(id)
+    original_name = name_to_update.name
+    if request.method == 'POST':
+        name_to_update.name = request.form['name']
+        name_to_update.email = request.form['email']
+        try:
+            db.session.commit()
+            flash(f'User {original_name} updated sucessfully')
+            return render_template('update.html', form=form, name_to_update=name_to_update, the_title='Update')
+        except:
+            flash(f'ERROR: User {name_to_update} update failed... try again')
+            return render_template('update.html', form=form, name_to_update=name_to_update, the_title='Update')
+    else:
+        return render_template('update.html', form=form, name_to_update=name_to_update, the_title='Update')
+        
+  
+        
 
 
