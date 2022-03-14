@@ -107,7 +107,7 @@ def name():
 # Cretae a form class for the db
 class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
-    email = StringField("Email", validators=[Email()])
+    email = StringField("Email", validators=[DataRequired(), Email()])
     submit = SubmitField('Add User')
 
 
@@ -124,10 +124,10 @@ def add_user():
             db.session.add(user)
             db.session.commit()
             user_added = True
-            flash('User added successfully')
+            flash(f'{form.name.data} at {form.email.data} added successfully')
         else:
             user_added = False
-            flash(f'User already in database. Name: {user.email}  Email: {user.name}')
+            flash(f'A user with the email {user.email} is already in the database')
         name = form.name.data
         form.name.data = ''
         form.email.data = ''
@@ -146,15 +146,40 @@ def update(id):
         name_to_update.email = request.form['email']
         try:
             db.session.commit()
+            users = Users.query.order_by(Users.date_added)
             flash(f'User {original_name} updated sucessfully')
-            return render_template('update.html', form=form, name_to_update=name_to_update, the_title='Update')
+            return render_template('update.html', form=form,  
+                              our_users= users, was_posted = True, the_title='Update')
         except:
+            users = Users.query.order_by(Users.date_added)
             flash(f'ERROR: User {name_to_update} update failed... try again')
-            return render_template('update.html', form=form, name_to_update=name_to_update, the_title='Update')
-    else:
-        return render_template('update.html', form=form, name_to_update=name_to_update, the_title='Update')
-        
-  
+            return render_template('update.html', form=form, our_users=users, 
+                        name_to_update=name_to_update, the_title='Update')
+    else:        
+        users = Users.query.order_by(Users.date_added)
+        return render_template('update.html', form=form, our_users=users, 
+                        name_to_update=name_to_update, was_posted=False, the_title='Update')
+
+
+@app.route('/delete/<int:id>', methods=['GET', 'POST'])
+def delete(id):
+    form = UserForm()
+    name = None
+
+    user_to_delete = Users.query.get_or_404(id)
+    original_name = user_to_delete.name
+    db.session.delete(user_to_delete)
+    try:
+        db.session.commit()
+        users = Users.query.order_by(Users.date_added)
+        flash(f'User {original_name} deleted sucessfully')
+        return render_template('add_user.html', form=form, our_users=users, the_title='Add User')
+    except:
+        flash(f'ERROR: User {user_to_delete} deletion failed... try again')
+        users = Users.query.order_by(Users.date_added)
+    
+        return render_template('add_user.html', form=form, our_users=users, the_title='Add User')
+
         
 
 
