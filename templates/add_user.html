@@ -4,7 +4,7 @@
 
 {% if name %}
 
-<h2>User Entry</h2>
+<h2>User Entry 1</h2>
 <form method="POST">
     <!-- MUST use POST. GET will not work -->
     {{ form.hidden_tag() }}
@@ -17,7 +17,21 @@
             {{ form.email.label(class='form-label') }}
             {{ form.email(class='form-control', type='email') }}
         </div>
+        <div class="row">
+            <div class="form-group col-md-3">
+                {{ form.password_hash.label(class='form-label') }}
+                {{ form.password_hash(class='form-control') }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-3">
+                {{ form.password_hash2.label(class='form-label') }}     
+                {{ form.password_hash2(class='form-control') }}
+            </div>
+        </div>
+
     </div>
+
     <br />
     {{ form.submit(class='btn btn-secondary') }}
 
@@ -54,7 +68,7 @@
 
 {% else %}
 
-<h2>User Entry</h2>
+<h2>User Entry 2</h2>
 <form method="POST">
     <!-- MUST use POST. GET will not work -->
     {{ form.hidden_tag() }}
@@ -68,6 +82,19 @@
             {{ form.email(class='form-control', type='email') }}
         </div>
     </div>
+    <div class="row">
+        <div class="form-group col-md-3">
+            {{ form.password_hash.label(class='form-label') }}
+            {{ form.password_hash(class='form-control') }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-3">
+            {{ form.password_hash2.label(class='form-label') }}
+            {{ form.password_hash2(class='form-control') }}
+        </div>
+    </div>
+
     <br />
     {{ form.submit(class='btn btn-secondary') }}
 

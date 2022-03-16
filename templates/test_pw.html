@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1 style="color: red;">Note: There is not test for an unfound password. Program will bomb</h1>
+    <br/>
+    {% if email %}
+        <h2>Email: {{ email }}</h2>
+        <h2>Password: {{ password_hash }}</h2>
+
+        <h2>I found this info</h2>
+        <ul>
+            <li>Name: {{ pw_to_check.name }}</li>
+            <li>Email: {{ pw_to_check.email }}</li>
+            <li>PW: {{ pw_to_check.password_hash }}</li>
+        </ul>
+        <br/>
+        {% if passed %}
+            <p style='color:green;'> The password {{ password_hash  }} is correct.</p>
+        {% else %}
+            <p style='color:red;'> The password {{ password_hash  }} is incorrect.</p>
+        {% endif %}
+
+    {% else %}
+
+        <h1>What's your email and password?</h1>>
+        <br/>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            {{ form.email.label(class='form-label') }}
+            {{ form.email(class='form-control',  type='email') }}
+            {{ form.password_hash.label(class='form-label') }}
+            {{ form.password_hash(class='form-control') }}
+
+            <br/>
+            {{ form.submit(class='btn btn-secondary') }}
+
+        </form>
+    {% endif %}
+
+
+{% endblock %}
